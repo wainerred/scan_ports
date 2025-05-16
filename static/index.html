@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Server Scanner</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 20px; }
+    h1 { color: #333; }
+    .server { background: white; margin-bottom: 20px; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    pre { background: #f7f7f7; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Server Scan Results</h1>
+  <button onclick="fetchScan()">🔍 Scan Servers</button>
+  <div id="results"></div>
+
+  <script>
+    async function fetchScan() {
+      const res = await fetch('/scan');
+      const data = await res.json();
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+      data.forEach(server => {
+        const div = document.createElement('div');
+        div.className = 'server';
+        div.innerHTML = `
+          <h2>${server.name} (${server.ip})</h2>
+          ${server.error ? `<p style="color:red;"><strong>Error:</strong> ${server.error}</p>` : ''}
+          <h3>Containers</h3>
+          <pre>${server.containers.join('\n')}</pre>
+          <h3>Ports</h3>
+          <pre>${server.ports.join('\n')}</pre>
+          <h3>GitLab Runners</h3>
+          <pre>${server.gitlab_runners.join('\n')}</pre>
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
